@@ -1,0 +1,17 @@
+.Description{
+    font-family: "Arial", "メイリオ";
+    font-size:17px;
+    margin-bottom:-5px;
+}
+.required{
+    color: red;
+    font-size: 15px;
+}
+.smallForms{
+    border:1px solid #dee7ec;
+    font-family: "Arial", "メイリオ";
+    width:200px;
+}
+.confirmationBackground{
+    background-color: aqua;
+}
