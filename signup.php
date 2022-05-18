@@ -53,36 +53,37 @@
     </form>   
     
     <?php 
+    
      require_once "functions.php";
      input_check_login();
      if(isset($_POST['inputCheck'])){
-     $dbh = db_open();
-     $sql = "SELECT * FROM users WHERE username = :username AND org = :org";
-     $stmt = $dbh->prepare($sql);
-     $stmt->bindParam(":username", $_POST['username'], PDO::PARAM_STR);
-     $stmt->bindParam(":org", $_POST['org'], PDO::PARAM_STR);
-     $stmt->execute();
-     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-     if(!empty($_POST['username'])){
+        $dbh = db_open();
+        $sql = "SELECT * FROM users WHERE username = :username AND org = :org";
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindParam(":username", $_POST['username'], PDO::PARAM_STR);
+        $stmt->bindParam(":org", $_POST['org'], PDO::PARAM_STR);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        passwordConfirmation();
+     if(!empty($_POST['username'] && $_POST['password'] && $_POST['org'])){
         if($_POST['username']==$result['username'] && $_POST['org']==$result['org']){
             die('既にそのユーザーは存在しています。');
         }else{
-            passwordConfirmation();
+            $uID = bin2hex(random_bytes(64));
+            hash('sha512',$uID);
             $password = $_POST['password'];
             $password_hashed = password_hash($password, PASSWORD_DEFAULT);
             //パスワードハッシュ化
             $dbh = db_open();
-            $sql ="INSERT INTO users (id, username, password, org)
-            VALUES (NULL, :username, :password, :org)";
+            $sql ="INSERT INTO users (id, username, password, org, userID)
+            VALUES (NULL, :username, :password, :org, :userID)";
             $stmt = $dbh->prepare($sql);
             $stmt->bindParam(":username", $_POST['username'], PDO::PARAM_STR);
             $stmt->bindParam(":password", $password_hashed, PDO::PARAM_STR);
             $stmt->bindParam(":org", $_POST['org'], PDO::PARAM_STR);
+            $stmt->bindParam(":userID", $uID, PDO::PARAM_STR);
             $stmt->execute();
-            unset($_POST['inputCheck']);
-            if(!empty($_SESSION)){
-            unset($_SESSION['inputCheck']);
-            }
+            session_destroy();
             header("Location: login.php");           
         }
     }

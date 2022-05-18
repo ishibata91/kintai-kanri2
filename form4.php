@@ -16,14 +16,15 @@
     if(isset($_SESSION['date'])){
     $dbh = db_open();
     //↓は今まで受けた変数を書き込みます
-        $sql ="INSERT INTO dakokudb (name,date,subject,time,id,org)
-        VALUES (:name, :date, :subject, :time, NULL, :org)";
+        $sql ="INSERT INTO dakokudb (name,date,subject,time,id,org,userID)
+        VALUES (:name, :date, :subject, :time, NULL, :org, :userID)";
         $stmt = $dbh->prepare($sql);
         $stmt->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
         $stmt->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
         $stmt->bindParam(":subject", $_SESSION['subject'], PDO::PARAM_STR);
         $stmt->bindParam(":time", $_SESSION['time'], PDO::PARAM_STR);
         $stmt->bindParam(":org", $_SESSION['org'], PDO::PARAM_STR);
+        $stmt->bindParam(":userID", $_SESSION['uID'], PDO::PARAM_STR);
         $stmt->execute();
         unset($_SESSION['date']);
         unset($_SESSION['subject']);

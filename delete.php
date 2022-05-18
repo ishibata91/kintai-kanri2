@@ -9,10 +9,18 @@
 <body>
     <?php require_once "functions.php"; ?>
     <?php
+    session_start();
+    $dbh = db_open();
     $id=(int) $_GET['id'];
     //リンクなどからidを取得してidに代入します。
-    $dbh = db_open();
-    //関数呼び出し
+    $sql = 'SELECT userID FROM dakokudb WHERE id = :id';
+    $statement = $dbh->prepare($sql);
+    $statement->bindParam(":id", $id, PDO::PARAM_STR);
+    $statement->execute();
+    $userID = $statement->fetch(PDO::FETCH_ASSOC);
+    $uID = $userID['userID'];
+
+    if($_SESSION['uID'] == $uID){
     $sql = "DELETE FROM dakokudb WHERE id=:id";
     //SQL、DBテーブル dakokudbの中の、指定されたidを削除しろ
     $stmt=$dbh->prepare($sql);
@@ -20,6 +28,16 @@
     $stmt->bindParam(":id", $id, PDO::PARAM_INT);
     //これを使うと書き換えができる
     $stmt->execute();
+    }else{
+        echo("違うユーザーのデータは削除できません。");
+        echo "<br>";
+        echo "<a href=form4.php>履歴へ</a>";
+        echo "<br>";
+        echo "<a href=input.php>入力画面へ</a>";
+        echo "<br>";
+        echo "<a href=logout.php>ログアウト</a>";
+        exit;
+    }
     header("Location: form4.php");
     ?>
 </body>

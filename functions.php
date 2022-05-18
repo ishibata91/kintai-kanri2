@@ -5,9 +5,8 @@ function str2html(string $string) :string{
 }
 //データベース開く時の関数です　このユーザーで、このオプションで、データベースをひらきますって感じ
 function db_open(){
-//    $user = hogehoge;
-//    $password = hogehoge;
-    //やばいので消します
+    //$user = "hogehoge";
+    //$password = "hogehoge";
     $opt = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_EMULATE_PREPARES => false,
@@ -68,6 +67,7 @@ function input_check_login(){
         exit;
     }
     //どれかでdieを出すと他の情報が消えるのでこんなことをした
+    //echoするだけだとexitする時の判定が作れなかったため変数代入
     if(!preg_match('/\A[[:^cntrl:]]{1,16}\z/u',$_POST['username'])){
         die("ユーザー名は16文字までです。");
         }
@@ -99,9 +99,8 @@ function antiCSRF(){
     }
 }
 //POSTとセッション見るだけ
-function Debug(){
-    var_dump($_POST);
-    var_dump($_SESSION);
+function Debug($What_you_seek){
+    var_dump($What_you_seek);
     die('デバッグで止めました');
 }
 ?>
