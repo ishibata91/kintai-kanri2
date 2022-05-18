@@ -5,14 +5,14 @@ function str2html(string $string) :string{
 }
 //データベース開く時の関数です　このユーザーで、このオプションで、データベースをひらきますって感じ
 function db_open(){
-    //$user = "hogehoge";
-    //$password = "hogehoge";
+    $user = "hogehoge";
+    $password = "hogehoge";
     $opt = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_EMULATE_PREPARES => false,
         PDO::MYSQL_ATTR_MULTI_STATEMENTS => false,
     ];
-    $dbh = new PDO('mysql:host=mysql2.conoha.ne.jp;dbname=uuwtr_dakoku',$user,$password,$opt);
+    $dbh = new PDO('mysql:host=localhost;dbname=dakoku',$user,$password,$opt);
     return $dbh;
 }
 //ログイン済みの場合ページ読込を任意のタイミングで破壊できます

@@ -63,6 +63,7 @@ foreach($errors as $value){
     echo $value;
     echo "</li>";
 }
+
 echo "</ul>";
 ?>
     <form action="input.php" method="post">
@@ -73,18 +74,22 @@ echo "</ul>";
 
 
 
-
+                <?php 
+                date_default_timezone_set ('Asia/Tokyo');
+                $today = date("Y-m-d");
+                $now = date('H:i');
+                ?>
                 <p class="Description">日付を入力してください<span class="required">※必須</span></p>
-                    <input type="date" name="date" value="<?php if(isset($date)){echo $date; } ?>" class="smallForms">
+                    <input type="date" name="date" value="<?php echo $today; ?>" class="smallForms" max="<?php echo $today; ?>">
                     <!-- 多分$_POSTに出力した後消えるけど、その中身の変数は残るから、それを出力するようにしただけ。変数がnullで無い時は。 -->
                     <p class="Description">時間を入力してください<span class="required">※必須</span></p>
-                    <input type="time" name="time" value="<?php if(isset($time)){echo $time;}?>" class="smallForms">
+                    <input type="time" name="time" value="<?php echo $now;?>" class="smallForms" >
                     <br>
                     <p class="Description">選択してください<span class="required">※必須</span></p>
                 <select name="subject" class="smallForms">
-                    <option value="出勤時間" <?php if(isset($subject) && $subject==="出勤時間"){ echo "selected" ;} ?>>出勤時間</option>
+                    <option value="出勤時間" <?php if($now <= strtotime('12:00')){ echo"selected";} ?>>出勤時間</option>
                     <!-- isset(〇〇)であるので$subjectはカッコで囲まれる。それで、$subject変数がnullでなく、出勤と一致した場合、selectedがoptionの中に出力される。結果submit後も選択されたままになる -->
-                    <option value="退勤時間" <?php if(isset($subject) && $subject==="退勤時間"){echo "selected" ;} ?>>退勤時間</option>
+                    <option value="退勤時間" <?php if($now > strtotime('12:00')){ echo"selected";} ?>>退勤時間</option>
                     </select>
                     <br>
                     <input type="submit" name="submit" value="確認画面へ">

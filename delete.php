@@ -19,8 +19,7 @@
     $statement->execute();
     $userID = $statement->fetch(PDO::FETCH_ASSOC);
     $uID = $userID['userID'];
-
-    if($_SESSION['uID'] == $uID){
+    if(hash_equals($_SESSION['uID'], $uID)){
     $sql = "DELETE FROM dakokudb WHERE id=:id";
     //SQL、DBテーブル dakokudbの中の、指定されたidを削除しろ
     $stmt=$dbh->prepare($sql);
