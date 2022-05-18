@@ -87,6 +87,7 @@
         while($rowcsv = $statement->fetch(PDO::FETCH_ASSOC)){
             unset($rowcsv['id']);
             unset($rowcsv['org']);
+            unset($rowcsv['userID']);
             $rowcsv = mb_convert_encoding($rowcsv, 'CP932', 'UTF-8');
             fputcsv($output,$rowcsv,',');           
             }
