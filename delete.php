@@ -19,6 +19,7 @@
     $statement->execute();
     $userID = $statement->fetch(PDO::FETCH_ASSOC);
     $uID = $userID['userID'];
+    if(!empty($uID)){
     if(hash_equals($_SESSION['uID'], $uID)){
     $sql = "DELETE FROM dakokudb WHERE id=:id";
     //SQL、DBテーブル dakokudbの中の、指定されたidを削除しろ
@@ -36,6 +37,15 @@
         echo "<br>";
         echo "<a href=logout.php>ログアウト</a>";
         exit;
+    }
+    }else{
+        echo "エラーが発生しました。";
+        echo "<br>";
+        echo "<a href=form4.php>履歴へ</a>";
+        echo "<br>";
+        echo "<a href=input.php>入力画面へ</a>";
+        echo "<br>";
+        echo "<a href=logout.php>ログアウト</a>";
     }
     header("Location: form4.php");
     ?>
