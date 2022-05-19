@@ -90,4 +90,8 @@ CSRFトークンもつけてみようと思ったのですが、トークン生�
 <br>
 など予定してます
 <br>
+![image](https://user-images.githubusercontent.com/104107487/169418070-f2afc5c0-1a63-44a4-9757-15756556c083.png)
+<br>
+一応できましたがチャート用ライブラリの設定書き換えるのさえよくわかりませんでした。
+<br>
 https://ishiba91.conohawing.com/
