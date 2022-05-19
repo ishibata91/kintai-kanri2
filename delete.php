@@ -13,13 +13,17 @@
     $dbh = db_open();
     $id=(int) $_GET['id'];
     //リンクなどからidを取得してidに代入します。
-    $sql = 'SELECT userID FROM dakokudb WHERE id = :id';
+    $sql = 'SELECT userID,name,date FROM dakokudb WHERE id = :id';
     $statement = $dbh->prepare($sql);
     $statement->bindParam(":id", $id, PDO::PARAM_STR);
     $statement->execute();
-    $userID = $statement->fetch(PDO::FETCH_ASSOC);
-    $uID = $userID['userID'];
-    if(!empty($uID)){
+    $result= $statement->fetch(PDO::FETCH_ASSOC);
+    $uID = $result['userID'];
+    $dName = $result['name'];
+    $dDate = $result['date'];
+
+
+
     if(hash_equals($_SESSION['uID'], $uID)){
     $sql = "DELETE FROM dakokudb WHERE id=:id";
     //SQL、DBテーブル dakokudbの中の、指定されたidを削除しろ
@@ -28,6 +32,13 @@
     $stmt->bindParam(":id", $id, PDO::PARAM_INT);
     //これを使うと書き換えができる
     $stmt->execute();
+
+    $sql = 'DELETE FROM kinmujikan WHERE name = :name AND date = :date';
+    $statement = $dbh->prepare($sql);
+    $statement->bindParam(":name", $dName, PDO::PARAM_STR);
+    $statement->bindParam(":date", $dDate, PDO::PARAM_STR);
+    $statement->execute();
+
     }else{
         echo("違うユーザーのデータは削除できません。");
         echo "<br>";
@@ -37,15 +48,6 @@
         echo "<br>";
         echo "<a href=logout.php>ログアウト</a>";
         exit;
-    }
-    }else{
-        echo "エラーが発生しました。";
-        echo "<br>";
-        echo "<a href=form4.php>履歴へ</a>";
-        echo "<br>";
-        echo "<a href=input.php>入力画面へ</a>";
-        echo "<br>";
-        echo "<a href=logout.php>ログアウト</a>";
     }
     header("Location: form4.php");
     ?>

@@ -76,9 +76,7 @@ echo "</ul>";
 
                 <?php 
                 date_default_timezone_set ('Asia/Tokyo');
-                //タイムゾーン設定
                 $today = date("Y-m-d");
-                //date()で時間取得
                 $now = date('H:i');
                 ?>
                 <p class="Description">日付を入力してください<span class="required">※必須</span></p>
@@ -93,7 +91,6 @@ echo "</ul>";
                     <!-- isset(〇〇)であるので$subjectはカッコで囲まれる。それで、$subject変数がnullでなく、出勤と一致した場合、selectedがoptionの中に出力される。結果submit後も選択されたままになる -->
                     <option value="退勤時間" <?php if($now > strtotime('12:00')){ echo"selected";} ?>>退勤時間</option>
                     </select>
-                    <!-- strtotime使わないと時間比較はできない -->
                     <br>
                     <input type="submit" name="submit" value="確認画面へ">
     </form>

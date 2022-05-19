@@ -23,10 +23,11 @@ if(isset($_SESSION['date'])){
 <body>
     <?php 
     $dbh = db_open();
-    $sql = 'SELECT date,subject FROM dakokudb WHERE date = :date AND subject = :subject';
+    $sql = 'SELECT date,subject FROM dakokudb WHERE date = :date AND subject = :subject AND name = :name';
     $statement = $dbh->prepare($sql);
     $statement->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
     $statement->bindParam(":subject", $_SESSION['subject'], PDO::PARAM_STR);
+    $statement->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
     $statement->execute(); 
     $result = $statement->fetch(PDO::FETCH_ASSOC);
     if(!empty($result)){
@@ -38,6 +39,34 @@ if(isset($_SESSION['date'])){
         echo "<p><a href='input.php?action=edit'>入力画面へ戻る</a></p>";
         exit;
     }
+    }
+    
+    $dbh = db_open();
+    $sql = 'SELECT subject,time FROM dakokudb WHERE date = :date AND name = :name';
+    $statement = $dbh->prepare($sql);
+    $statement->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
+    $statement->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
+    $statement->execute(); 
+    $result = $statement->fetch(PDO::FETCH_ASSOC);
+    if(empty($result['subject'])){
+        if($_SESSION['subject'] == "退勤時間"){
+            echo "まずは出勤時間から入力してください。";
+            unset($_SESSION['date']);
+            unset($_SESSION['subject']);
+            unset($_SESSION['time']);
+            echo "<p><a href='input.php?action=edit'>入力画面へ戻る</a></p>";
+            exit;
+        }
+    }elseif($_SESSION['subject'] == "退勤時間"){
+        $AttendanceTime = strtotime($result['time']);
+        $LeavingTime = strtotime($_SESSION['time']);
+        $diff = round((($LeavingTime - $AttendanceTime)/60)/60, 1);
+        $_SESSION['timeDiff'] = $diff;
+    }else{
+        $AttendanceTime = strtotime($result['time']);
+        $LeavingTime = strtotime($_SESSION['time']);
+        $diff = round((($AttendanceTime - $LeavingTime)/60)/60, 1);
+        $_SESSION['timeDiff'] = $diff;
     }
     ?>
     <p>これでよろしいですか？</p>

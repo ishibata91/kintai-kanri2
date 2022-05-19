@@ -26,9 +26,23 @@
         $stmt->bindParam(":org", $_SESSION['org'], PDO::PARAM_STR);
         $stmt->bindParam(":userID", $_SESSION['uID'], PDO::PARAM_STR);
         $stmt->execute();
+
+        if(!empty($_SESSION['timeDiff'])){
+        $sql ="INSERT INTO kinmujikan (id,name,date,userID,diff)VALUES(NULL, :name, :date, :userID, :diff)";
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
+        $stmt->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
+        $stmt->bindParam(":userID", $_SESSION['uID'], PDO::PARAM_STR);
+        $stmt->bindParam(":diff", $_SESSION['timeDiff'], PDO::PARAM_STR);
+        $stmt->execute();
+        unset($_SESSION['timeDiff']);
+        }
         unset($_SESSION['date']);
         unset($_SESSION['subject']);
         unset($_SESSION['time']);
+        
+
+
     }
     ?>
     
@@ -73,7 +87,7 @@
             <?php endwhile; ?>
         </tbody>
         </table>
-        <?php 
+        <?php //CSV書き込み処理
         $dbh = db_open();
         $sql = 'SELECT * FROM dakokudb WHERE org = :org';
         $statement = $dbh->prepare($sql);
@@ -87,13 +101,41 @@
         while($rowcsv = $statement->fetch(PDO::FETCH_ASSOC)){
             unset($rowcsv['id']);
             unset($rowcsv['org']);
-            unset($rowcsv['userID']);
             $rowcsv = mb_convert_encoding($rowcsv, 'CP932', 'UTF-8');
             fputcsv($output,$rowcsv,',');           
             }
             fclose($output); 
         ?>
+
+        <?php //チャート用書き込み処理
+            date_default_timezone_set ('Asia/Tokyo');
+            $thisMonth = date("Y-m");
+
+            $outputgcsv = fopen("google.csv", "w");
+            $csvheader = ["日付", "勤務時間"];
+            $dbh = db_open();
+            fputcsv($outputgcsv,$csvheader,',');
+            $diffSUM = 0;
+
+            $sql = 'SELECT date,diff FROM kinmujikan WHERE name = :name ORDER BY date ASC' ;
+            $statement = $dbh->prepare($sql);
+            $statement->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
+            $statement->execute(); 
+            while($rowgcsv = $statement->fetch(PDO::FETCH_ASSOC)){
+                if(strpos($rowgcsv['date'],$thisMonth) === false){
+                    continue;
+                }else{
+                    fputcsv($outputgcsv, $rowgcsv);
+                    $diffSUM += $rowgcsv['diff'];
+                }
+                
+            }
+             fclose($outputgcsv);
+        ?>
         <button type=“button” onclick="location.href='History.csv'">csvダウンロード</button>
+        <h3>あなたの今月の合計勤務時間は<?php echo $diffSUM; ?>時間です。</h3>
+        <?php require_once("chart.php"); ?>
+        <div id="crt_ertdlyYY"></div>
 </body>
 
 </html>
