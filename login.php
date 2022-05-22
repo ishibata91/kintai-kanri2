@@ -59,8 +59,11 @@
         $stmt->bindParam(":username", $_POST['username'], PDO::PARAM_STR);
         $stmt->bindParam(":org", $_POST['org'], PDO::PARAM_STR);
         $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC); 
+        if(isset($result['userID'])){      
         $_SESSION['uID'] = $result['userID'];
+        }
+        
         //FETCH_ASSOCはrubyだとハッシュというものになるらしい。FETCH_INTが配列というもになるらしい
         if(isset($_POST['username'])){
         if(!$result){

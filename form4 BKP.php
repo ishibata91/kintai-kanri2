@@ -9,23 +9,12 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
     <script src="script.js"></script>
-    <link rel="stylesheet" type="text/css" href="Calender.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
     <?php
     require_once "functions.php";
-    
     login_check();
-    
+    if(isset($_SESSION['date'])){
     $dbh = db_open();
-
-    
-        
-
-
     //↓は今まで受けた変数を書き込みます
-    if($_SESSION['isFirst']){
         $sql ="INSERT INTO dakokudb (name,date,subject,time,id,org,userID)
         VALUES (:name, :date, :subject, :time, NULL, :org, :userID)";
         $stmt = $dbh->prepare($sql);
@@ -36,43 +25,24 @@
         $stmt->bindParam(":org", $_SESSION['org'], PDO::PARAM_STR);
         $stmt->bindParam(":userID", $_SESSION['uID'], PDO::PARAM_STR);
         $stmt->execute();
-       
-        $sql = 'SELECT time FROM dakokudb WHERE date = :date AND name = :name ORDER BY subject ASC';
-        $statement = $dbh->prepare($sql);
-        $statement->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
-        $statement->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
-        $statement->execute(); 
-        while($result = $statement->fetch(PDO::FETCH_ASSOC)){
-            $diff_array[] = $result;
-        }
-        if(isset($diff_array[1])){
-                $AttendanceTime = strtotime($diff_array[0]['time']);
-                $LeavingTime = strtotime($diff_array[1]['time']);
-                $diff = round((($LeavingTime - $AttendanceTime)/60)/60, 1);
-                $_SESSION['timeDiff'] = $diff;
 
-                $sql ="INSERT INTO kinmujikan (id,name,date,userID,diff)VALUES(NULL, :name, :date, :userID, :diff)";
-                $stmt = $dbh->prepare($sql);
-                $stmt->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
-                $stmt->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
-                $stmt->bindParam(":userID", $_SESSION['uID'], PDO::PARAM_STR);
-                $stmt->bindParam(":diff", $_SESSION['timeDiff'], PDO::PARAM_STR);
-                $stmt->execute();
-                $_SESSION['isFirst'] = false;
+        if(!empty($_SESSION['timeDiff'])){
+        $sql ="INSERT INTO kinmujikan (id,name,date,userID,diff)VALUES(NULL, :name, :date, :userID, :diff)";
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
+        $stmt->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
+        $stmt->bindParam(":userID", $_SESSION['uID'], PDO::PARAM_STR);
+        $stmt->bindParam(":diff", $_SESSION['timeDiff'], PDO::PARAM_STR);
+        $stmt->execute();
+        unset($_SESSION['timeDiff']);
         }
-        $_SESSION['isFirst'] = false;
-        // unset($result_array);
-        unset($_SESSION['time']);
-        unset($_SESSION['subject']);
         unset($_SESSION['date']);
+        unset($_SESSION['subject']);
+        unset($_SESSION['time']);
+        
+
+
     }
-
-    // if(!empty($_SESSION['timeDiff'])){
-        
-    // }
-        
-
-
     ?>
     
 
@@ -81,7 +51,41 @@
 <?php require_once "header.php" ?>
     <h1>履歴</h1>
     <a href="input.php">入力画面へ</a>
-        
+    <?php
+        $dbh = db_open();
+        $sql = 'SELECT * FROM dakokudb WHERE org = :org';
+        $statement = $dbh->prepare($sql);
+        $statement->bindParam(":org", $_SESSION['org'], PDO::PARAM_STR);
+        $statement->execute();
+        //queryは読み込むだけなのでbindparamを必要としない
+        //なぜqueryではないのか。ログイン時に保存される組織名のセッションとDBのセッションを照合しないといけないから。
+        ?>
+        <table id="table_id" class="display" width="800">
+        <thead>
+        <tr align="center">
+        <th>名前</th> 
+        <th>日付</th>
+        <th>出退</th>
+        <th>時間</th>
+        <th>削除</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php while($row = $statement->fetch(PDO::FETCH_ASSOC)): ?>
+            <tr align="center">
+            <td><?php echo str2html($row['name'])?></td>
+            <td><?php echo str2html($row['date'])?></td>
+            <td><?php echo str2html($row['subject'])?></td>
+            <td><?php echo str2html($row['time'])?></td>
+            <?php if($_SESSION['name']==$row['name']): ?>
+            <td><a href="delete.php?id=<?php echo (int) $row['id']; ?>" onclick="return confirm('本当に削除しますか？');">削除</a></td>
+            <?php else: ?>
+            <td><a>削除不可</a></td>
+            <?php endif; ?>
+            </tr>
+            <?php endwhile; ?>
+        </tbody>
+        </table>
         <?php //CSV書き込み処理
         $dbh = db_open();
         $sql = 'SELECT * FROM dakokudb WHERE org = :org';
@@ -102,26 +106,7 @@
             }
             fclose($output); 
         ?>
-        <?php require_once("Calender.php");?>
-    <div class="container">
-        <h3 class="mb-5"><a href="?ym=<?php echo $prev; ?>">&lt;</a> <?php echo $html_title; ?> <a href="?ym=<?php echo $next; ?>">&gt;</a></h3>
-        <table class="table table-bordered">
-            <tr>
-                <th>日</th>
-                <th>月</th>
-                <th>火</th>
-                <th>水</th>
-                <th>木</th>
-                <th>金</th>
-                <th>土</th>
-            </tr>
-            <?php
-                foreach ($weeks as $week) {
-                    echo $week;
-                }
-            ?>
-        </table>
-    </div>
+
         <?php //チャート用書き込み処理
             date_default_timezone_set ('Asia/Tokyo');
             $thisMonth = date("Y-m");
@@ -148,11 +133,9 @@
              fclose($outputgcsv);
         ?>
         <button type=“button” onclick="location.href='History.csv'">csvダウンロード</button>
-        <?php if(!$diffSUM == 0): ?>
         <h3>あなたの今月の合計勤務時間は<?php echo $diffSUM; ?>時間です。</h3>
         <?php require_once("chart.php"); ?>
         <div id="crt_ertdlyYY"></div>
-        <?php endif; ?>
 </body>
 
 </html>

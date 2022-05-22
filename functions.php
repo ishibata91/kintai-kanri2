@@ -5,14 +5,14 @@ function str2html(string $string) :string{
 }
 //データベース開く時の関数です　このユーザーで、このオプションで、データベースをひらきますって感じ
 function db_open(){
-    $user = "aaaaa";
-    $password = "aaaaa";
+    $user = "phpuser";
+    $password = "aiueo";
     $opt = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_EMULATE_PREPARES => false,
         PDO::MYSQL_ATTR_MULTI_STATEMENTS => false,
     ];
-    $dbh = new PDO('mysql:host=mysql2.conoha.ne.jp;dbname=uuwtr_dakoku',$user,$password,$opt);
+    $dbh = new PDO('mysql:host=localhost;dbname=dakoku',$user,$password,$opt);
     return $dbh;
 }
 //ログイン済みの場合ページ読込を任意のタイミングで破壊できます
@@ -98,9 +98,25 @@ function antiCSRF(){
         exit;
     }
 }
-//POSTとセッション見るだけ
+//POSTとセッション見るだけ 単一可
 function Debug($What_you_seek){
+    echo '<br>';
+    echo '-------------------------------------------------------------';
+    echo '<br>';
     var_dump($What_you_seek);
-    die('デバッグで止めました');
+    echo '<br>';
+    echo '-------------------------------------------------------------';
+}
+//配列が長すぎて読みにくいので作った。注：配列以外不可
+function DebugArray($What_you_seek){
+    echo '<br>';
+        echo '-------------------------------------------------------------';
+    foreach($What_you_seek as $gomi){
+        echo '<br>';
+        var_dump($gomi);
+        echo '<br>';
+         }
+         echo
+        '-------------------------------------------------------------';
 }
 ?>

@@ -57,16 +57,6 @@ if(isset($_SESSION['date'])){
             echo "<p><a href='input.php?action=edit'>入力画面へ戻る</a></p>";
             exit;
         }
-    }elseif($_SESSION['subject'] == "退勤時間"){
-        $AttendanceTime = strtotime($result['time']);
-        $LeavingTime = strtotime($_SESSION['time']);
-        $diff = round((($LeavingTime - $AttendanceTime)/60)/60, 1);
-        $_SESSION['timeDiff'] = $diff;
-    }else{
-        $AttendanceTime = strtotime($result['time']);
-        $LeavingTime = strtotime($_SESSION['time']);
-        $diff = round((($AttendanceTime - $LeavingTime)/60)/60, 1);
-        $_SESSION['timeDiff'] = $diff;
     }
     ?>
     <p>これでよろしいですか？</p>
@@ -76,6 +66,7 @@ if(isset($_SESSION['date'])){
             <h3 class="Description">日付</h3><?php echo $date; ?>
             <h3 class="Description"><?php echo $subject; ?></h3><?php echo ($time); ?>
             <br>
+            <?php $_SESSION['isFirst'] = true; ?>
             <input type="submit" name= "submit" value="送信する" >  
     </form>
     <p><a href="input.php?action=edit">入力画面へ戻る</a></p>
