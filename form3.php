@@ -1,9 +1,8 @@
 <?php
 require_once "functions.php";
 login_check();
-
+//確認ダイアログを表示するための変数定義
 if(isset($_SESSION['date'])){
-
     $date=$_SESSION['date'];
     $subject=$_SESSION['subject'];
     $time=$_SESSION['time'];
@@ -18,12 +17,13 @@ if(isset($_SESSION['date'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>確認です</title>
     <link rel="stylesheet" href="stylesheet.css">
-
 </head>
 <body>
     <?php 
+    //出退勤が同じだと打刻できないようにする
     $dbh = db_open();
-    $sql = 'SELECT date,subject FROM dakokudb WHERE date = :date AND subject = :subject AND name = :name';
+    //出退勤と名前、日付が一緒のデータが出てきたら中止
+    $sql = 'SELECT subject FROM dakokudb WHERE date = :date AND subject = :subject AND name = :name';
     $statement = $dbh->prepare($sql);
     $statement->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
     $statement->bindParam(":subject", $_SESSION['subject'], PDO::PARAM_STR);
@@ -40,9 +40,11 @@ if(isset($_SESSION['date'])){
         exit;
     }
     }
-    
+    //退勤時間から入力しようとしたら防止
     $dbh = db_open();
-    $sql = 'SELECT subject,time FROM dakokudb WHERE date = :date AND name = :name';
+    //名前と日付が同じデータから出退勤と時間を引っ張り出す。
+    //中身が空で、退勤を入力しようとしてるなら防止
+    $sql = 'SELECT subject FROM dakokudb WHERE date = :date AND name = :name';
     $statement = $dbh->prepare($sql);
     $statement->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
     $statement->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
@@ -60,15 +62,24 @@ if(isset($_SESSION['date'])){
     }
     ?>
     <p>これでよろしいですか？</p>
-    <form action="form4.php" method="post">
+    <form action="" method="post">
             <h3 class="Description">名前</h3><?php echo $_SESSION['name'];?>
             <br>
             <h3 class="Description">日付</h3><?php echo $date; ?>
             <h3 class="Description"><?php echo $subject; ?></h3><?php echo ($time); ?>
             <br>
-            <?php $_SESSION['isFirst'] = true; ?>
+            <input type="hidden" name= "Check"></input>
             <input type="submit" name= "submit" value="送信する" >  
     </form>
+    
+    <?php 
+    //こうしないとform3にアクセスした後履歴に飛んだら必要なSESSIONがないのにファーストフラグがついちゃってエラー吐いちゃった
+    if(isset($_POST['Check'])){
+    $_SESSION['isFirst'] = true;
+    unset($_SESSION['Check']);
+    header("Location: form4.php");
+    }
+     ?>
     <p><a href="input.php?action=edit">入力画面へ戻る</a></p>
     <!-- indexになんかGETメソッドでデータ送ってるらしい。 -->
 </body>

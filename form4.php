@@ -9,21 +9,17 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
     <script src="script.js"></script>
-    <link rel="stylesheet" type="text/css" href="Calender.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
     <?php
     require_once "functions.php";
-    
     login_check();
-    
     $dbh = db_open();
-
-    
-        
-
-
+    //form3にアクセスせずに履歴にアクセスするようなことがあったら、これが無いと下のifでエラーが出る
+    if(!isset($_SESSION['isFirst'])){
+        $_SESSION['isFirst'] = false;
+    }
     //↓は今まで受けた変数を書き込みます
     if($_SESSION['isFirst']){
         $sql ="INSERT INTO dakokudb (name,date,subject,time,id,org,userID)
@@ -36,7 +32,7 @@
         $stmt->bindParam(":org", $_SESSION['org'], PDO::PARAM_STR);
         $stmt->bindParam(":userID", $_SESSION['uID'], PDO::PARAM_STR);
         $stmt->execute();
-       
+       //上で書き込まれたデータを読んで出勤時間と退勤時間を引っ張りだす。
         $sql = 'SELECT time FROM dakokudb WHERE date = :date AND name = :name ORDER BY subject ASC';
         $statement = $dbh->prepare($sql);
         $statement->bindParam(":date", $_SESSION['date'], PDO::PARAM_STR);
@@ -45,6 +41,7 @@
         while($result = $statement->fetch(PDO::FETCH_ASSOC)){
             $diff_array[] = $result;
         }
+        //もし両方あったとしたら、その差を算出して記録する。
         if(isset($diff_array[1])){
                 $AttendanceTime = strtotime($diff_array[0]['time']);
                 $LeavingTime = strtotime($diff_array[1]['time']);
@@ -61,27 +58,37 @@
                 $_SESSION['isFirst'] = false;
         }
         $_SESSION['isFirst'] = false;
-        // unset($result_array);
         unset($_SESSION['time']);
         unset($_SESSION['subject']);
         unset($_SESSION['date']);
     }
-
-    // if(!empty($_SESSION['timeDiff'])){
-        
-    // }
-        
-
-
     ?>
-    
-
 </head>
 <body>
 <?php require_once "header.php" ?>
     <h1>履歴</h1>
     <a href="input.php">入力画面へ</a>
-        
+        <?php require_once("Calender.php");?>
+          <!-- ライブラリ使用してるのでクラス名とかは謎。calender.phpで定義したものを出力するのが中心 -->
+            <div class="container">
+                <h3 class="mb-5"><a href="?ym=<?php echo $prev; ?>">&lt;</a> <?php echo $html_title; ?> <a href="?ym=<?php echo $next; ?>">&gt;</a></h3>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>日</th>
+                        <th>月</th>
+                        <th>火</th>
+                        <th>水</th>
+                        <th>木</th>
+                        <th>金</th>
+                        <th>土</th>
+                    </tr>
+                    <?php
+                        foreach ($weeks as $week) {
+                            echo $week;
+                        }
+                    ?>
+                </table>
+            </div>
         <?php //CSV書き込み処理
         $dbh = db_open();
         $sql = 'SELECT * FROM dakokudb WHERE org = :org';
@@ -102,26 +109,6 @@
             }
             fclose($output); 
         ?>
-        <?php require_once("Calender.php");?>
-    <div class="container">
-        <h3 class="mb-5"><a href="?ym=<?php echo $prev; ?>">&lt;</a> <?php echo $html_title; ?> <a href="?ym=<?php echo $next; ?>">&gt;</a></h3>
-        <table class="table table-bordered">
-            <tr>
-                <th>日</th>
-                <th>月</th>
-                <th>火</th>
-                <th>水</th>
-                <th>木</th>
-                <th>金</th>
-                <th>土</th>
-            </tr>
-            <?php
-                foreach ($weeks as $week) {
-                    echo $week;
-                }
-            ?>
-        </table>
-    </div>
         <?php //チャート用書き込み処理
             date_default_timezone_set ('Asia/Tokyo');
             $thisMonth = date("Y-m");
@@ -137,6 +124,7 @@
             $statement->bindParam(":name", $_SESSION['name'], PDO::PARAM_STR);
             $statement->execute(); 
             while($rowgcsv = $statement->fetch(PDO::FETCH_ASSOC)){
+                //今月かそうじゃないかの判定
                 if(strpos($rowgcsv['date'],$thisMonth) === false){
                     continue;
                 }else{
