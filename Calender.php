@@ -149,7 +149,7 @@ for ( $day = 1; $day <= $day_count; $day++, $youbi++ ){
     //これ最初のfor
     }
 ?>
-<!-- なぜかはわからないが外部css読み込みだと適用されないので直接書いた。 -->
+<!-- なぜかはわからないが外部css読み込みだと適用されないので直接書いた。多分優先度。 -->
 <style>
     .container {
     font-family: 'Noto Sans JP', sans-serif;
