@@ -9,12 +9,12 @@
 <script type="text/javascript">
 function drawVisualization() {
    $.get("google.csv", function(csvString) {
-      // transform the CSV string into a 2-dimensional array
+      // transform the CSV string into a 2-dimensional array　CSV文字列を2次元配列に
       var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
 
-      // this new DataTable object holds all the data
+      // this new DataTable object holds all the data　このデータテーブルには全てのデータが入っている
       var data = new google.visualization.arrayToDataTable(arrayData);
-      // CAPACITY - En-route ATFM delay - YY - CHART
+      // CAPACITY - En-route ATFM delay - YY - CHART　？？？
       var crt_ertdlyYY = new google.visualization.ChartWrapper({
          chartType: 'LineChart',
          containerId: 'crt_ertdlyYY',
