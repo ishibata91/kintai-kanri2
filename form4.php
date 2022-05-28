@@ -16,7 +16,7 @@
     require_once "functions.php";
     login_check();
     $dbh = db_open();
-    //form3にアクセスせずに履歴にアクセスするようなことがあったら、これが無いと下のifでエラーが出る
+    //form3にアクセスせずに履歴にアクセスするようなことがあったら、これが無いと下のifでエラーが出る。form3でファーストフラグを定義しているため
     if(!isset($_SESSION['isFirst'])){
         $_SESSION['isFirst'] = false;
     }
