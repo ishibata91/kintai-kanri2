@@ -57,6 +57,7 @@
                 $stmt->execute();
                 $_SESSION['isFirst'] = false;
         }
+        //ファーストフラグがあるので保持してても問題ないけど一応unset
         $_SESSION['isFirst'] = false;
         unset($_SESSION['time']);
         unset($_SESSION['subject']);
