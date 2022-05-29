@@ -84,7 +84,7 @@ function passwordConfirmation(){
         }
     }
 }
-//できん
+//できん 代入演算子でramdom_bytesを変数代入しているだけで、値を代入してるわけじゃないって感じで読み直すたびにランダムな値吐いてるのかも
 function antiCSRF(){
     if(!isset($_SESSION)){
         session_start();
