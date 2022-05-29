@@ -98,7 +98,7 @@ function antiCSRF(){
         exit;
     }
 }
-//POSTとセッション見るだけ 単一可
+//変数の中身見るだけ 単一可
 function Debug($What_you_seek){
     echo '<br>';
     echo '-------------------------------------------------------------';
